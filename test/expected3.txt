@@ -1,0 +1,4 @@
+input1.txt
+дцать
+input2.txt
+дцать
