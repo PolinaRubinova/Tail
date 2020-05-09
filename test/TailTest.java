@@ -13,7 +13,8 @@ class TailLauncherTest {
             "test/input1.txt", "test/input2.txt"};
     private String[] args3 = {"-c", "5", "-o", "test/output.txt",
             "test/input1.txt", "test/input2.txt"};
-    private String[] argsErr = {"-n", "3", "-c", "5", "test/input1.txt"};
+    private String[] argsErr1 = {"-n", "3", "-c", "5", "test/input1.txt"};
+    //private String[] argsErr2 = {"-n", "5", "test/input0.txt"};
     //private String[] args4 = {"-o", "test/output.txt"};
 
     @Test
@@ -40,7 +41,8 @@ class TailLauncherTest {
 
     @Test
     void testErr () {
-        assertThrows(Error.class, () -> TailLauncher.main(argsErr));
+        assertThrows(Error.class, () -> TailLauncher.main(argsErr1));
+        //assertThrows(Error.class, () -> TailLauncher.main(argsErr2));
     }
 
     /*@Test
