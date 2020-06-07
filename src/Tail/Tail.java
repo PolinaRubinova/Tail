@@ -20,7 +20,7 @@ public class Tail {
         this.lastLines = lastLines;
     }
 
-    private void tail(BufferedReader reader, BufferedWriter writer) throws IOException {
+    private void tail(ArrayList<String> reader, BufferedWriter writer) throws IOException {
         if (lastLines != 0) {
             extractLastLines(reader, writer);
         } else if (lastSymbols != 0) {
@@ -31,14 +31,15 @@ public class Tail {
         }
     }
 
-    private void extractLastLines(BufferedReader reader, BufferedWriter writer) throws IOException {
+    private void extractLastLines(ArrayList<String> reader, BufferedWriter writer) throws IOException {
         Deque<String> deque = new LinkedList<>();
-        String string;
-        while ((string = reader.readLine()) != null) {
-            if (deque.size() == lastLines) {
-                deque.pollFirst();
+        for (String string : reader) {
+            if (string != null) {
+                if (deque.size() == lastLines) {
+                    deque.pollFirst();
+                }
+                deque.add(string);
             }
-            deque.add(string);
         }
         while (deque.peekFirst() != null) {
             writer.write(Objects.requireNonNull(deque.pollFirst()));
@@ -48,14 +49,16 @@ public class Tail {
         }
     }
 
-    private void extractLastSymbols(BufferedReader reader, BufferedWriter writer) throws IOException {
+    private void extractLastSymbols(ArrayList<String> reader, BufferedWriter writer) throws IOException {
         Deque<Character> deque = new LinkedList<>();
-        int symbols ;
-        while ((symbols = reader.read()) > -1) {
-            if (deque.size() == lastSymbols) {
-                deque.pollFirst();
+        for (String string : reader) {
+            for (int j = 0; j < string.length(); j++) {
+                int symbols = string.charAt(j);
+                if (deque.size() == lastSymbols) {
+                    deque.pollFirst();
+                }
+                deque.add((char) symbols);
             }
-            deque.add((char) symbols);
         }
         while (deque.peekFirst() != null) {
             writer.write(String.valueOf(Objects.requireNonNull(deque.pollFirst())));
@@ -66,25 +69,23 @@ public class Tail {
         BufferedWriter writer = outputName == null ?
                 new BufferedWriter(new OutputStreamWriter(System.out)) :
                 Files.newBufferedWriter(Paths.get(outputName));
+
         if (inputNames == null) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))) {
-                    String line;
-                System.out.println("enter your text:");
-                    while (!(line = reader.readLine()).equals("exit")) {
-                        writer.write(line);
-                    }
-                    tail(reader,writer);
+                ArrayList<String> console = new ArrayList<>();
+                console.add(String.valueOf(reader.readLine()));
+                reader.close();
+                tail(console,writer);
             }
         }
         else {
             try (writer) {
                 for (String str : inputNames) {
-                    try (BufferedReader reader = Files.newBufferedReader(Paths.get(str))) {
                         writer.write(new File(str).getName());
                         writer.newLine();
-                        tail(reader, writer);
+                        ArrayList<String> text = (ArrayList<String>) Files.readAllLines(Paths.get(str));
+                        tail(text, writer);
                         writer.newLine();
-                    }
                 }
             }
         }
